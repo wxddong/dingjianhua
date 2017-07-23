@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+		    classpath:/applicationContext.xml
+		</param-value>
+	</context-param>
+
+    <!--此监听器主要用于解决java.beans.Introspector导致的内存泄漏的问题 -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+	
+	<!--自动装配ApplicationContext的配置信息 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!--基于LocalThread将HTTP request对象绑定到为该请求提供服务的线程上。使得具有request和session作用域的bean能够在后面的调用链中被访问到 -->
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+	
+	<!--针对于每次浏览器请求进行过滤的，然后再其之上添加了父类没有的功能即处理字符编码 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>utf-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!--浏览器 form表单只支持 GET与 POST请求，而DELETE、 PUT等 method并不支持， Spring3.0 添加了一个HiddenHttpMethodFilter，可以将这些请求转换为标准的 http方法，使得支持 GET、 POST、 PUT与DELETE等请求 -->
+	<!--HiddenHttpMethodFilter必须作用于Dispatcher前 -->
+	<filter>
+		<filter-name>HiddenHttpMethodFilter</filter-name>
+		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>HiddenHttpMethodFilter</filter-name>
+		<servlet-name>hessian</servlet-name>
+	</filter-mapping>
+	
+ 	<!--DispatcherServlet主要用作职责调度工作，本身主要用于控制流程 -->
+	<servlet>
+		<servlet-name>hessian</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>  
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+		    classpath:/hessianServer/hessian-servlet.xml
+		</param-value>
+		</init-param>  
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>hessian</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+</web-app>
+        

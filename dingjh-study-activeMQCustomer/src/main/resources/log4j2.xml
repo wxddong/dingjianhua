@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR" name="test">
+	<Appenders>
+		<RollingFile name="RollingFile" fileName="D:/logs/test-%d{MM-dd-yyyy}-%i.log"
+			filePattern="D:/logs/$${date:yyyy-MM}/test-%d{MM-dd-yyyy}-%i.log">
+			<PatternLayout>
+				<Pattern>%d [%p] %c %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+		</RollingFile>
+		<Console name="Console" target="SYSTEM_OUT">  <!-- 将日志信息从控制台输出 -->
+			<PatternLayout pattern="%d [%p] %c %m%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+        <logger name="net.bull.javamelody.JavaLogger" level="ERROR" />
+		<asyncRoot level="ERROR">
+			<appender-ref ref="RollingFile" />
+			<appender-ref ref="Console" />
+		</asyncRoot>
+	</Loggers>
+</Configuration>

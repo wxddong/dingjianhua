@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+	
+	<context:component-scan base-package="com.dingjh.activeMQCustomer" />
+	<!--扫描dingjh-study-log的包，使注解生效--> 
+	<context:component-scan base-package="com.dingjh.log" />
+	
+	<!--导入dingjh-study-activeMQProducter的配置文件--> 
+	<import resource="applicationContext_activeMQ.xml" />
+	
+	<!-- JMS 开始 -->
+	<!-- 消息监听器 -->
+	<bean id="studyQueueListener" class="com.dingjh.activeMQCustomer.jms.listener.StudyQueueListener" />
+	<!-- 消息监听容器 -->
+	<bean id="jmsContainerStudy"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="pooledConnectionFactory" />
+		<property name="destination" ref="studyqueue" />
+		<property name="messageListener" ref="studyQueueListener" />
+		<property name="sessionTransacted" value="false"></property>
+		<!-- 设置固定的线程数 -->
+		<property name="concurrentConsumers" value="6"></property>
+		<!-- 设置动态的线程数 -->
+		<property name="concurrency" value="2-9"></property>
+		<!-- 设置最大的线程数 -->
+		<property name="maxConcurrentConsumers" value="15"></property>
+	</bean>
+	<!-- JMS 结束 -->
+	
+	<!-- 支持 @AspectJ 标记 -->
+	<!-- 强制使用CGLIB代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+</beans>
